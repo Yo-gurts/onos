@@ -39,6 +39,7 @@ public final class FlowRuleCodec extends JsonCodec<FlowRule> {
 
     private static final String PRIORITY = "priority";
     private static final String TIMEOUT = "timeout";
+    private static final String HARD_TIMEOUT = "hardTimeout";
     private static final String IS_PERMANENT = "isPermanent";
     private static final String APP_ID = "appId";
     private static final String TABLE_ID = "tableId";
@@ -64,6 +65,7 @@ public final class FlowRuleCodec extends JsonCodec<FlowRule> {
                 .put(APP_ID, strAppId)
                 .put(PRIORITY, flowRule.priority())
                 .put(TIMEOUT, flowRule.timeout())
+                .put(HARD_TIMEOUT, flowRule.hardTimeout())
                 .put(IS_PERMANENT, flowRule.isPermanent())
                 .put(DEVICE_ID, flowRule.deviceId().toString())
                 .put(TABLE_ID, flowRule.tableId())
@@ -106,6 +108,10 @@ public final class FlowRuleCodec extends JsonCodec<FlowRule> {
         if (isPermanent) {
             resultBuilder.makePermanent();
         } else {
+            JsonNode hardTimeout = json.get(HARD_TIMEOUT);
+            if (hardTimeout != null) {
+                resultBuilder.withHardTimeout(hardTimeout.asInt());
+            }
             resultBuilder.makeTemporary(nullIsIllegal(json.get(TIMEOUT),
                             TIMEOUT
                             + MISSING_MEMBER_MESSAGE
