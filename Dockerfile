@@ -14,6 +14,10 @@
 
 # With this dockerfile you can build a ONOS Docker container
 
+# build with proxy: 
+# docker build --network=host --build-arg http_proxy=http://127.0.0.1:8889 \
+# --build-arg https_proxy=http://127.0.0.1:8889 -t onos:2.5.9 .
+
 ARG JOBS=2
 ARG PROFILE=default
 ARG TAG=11.0.13-11.52.13
@@ -33,6 +37,9 @@ ENV BUILD_DEPS \
     curl \
     unzip
 RUN apt-get update && apt-get install -y ${BUILD_DEPS}
+
+RUN export http_proxy=http://127.0.0.1:8889 \
+    && export https_proxy=http://127.0.0.1:8889
 
 # Install Bazelisk, which will download the version of bazel specified in
 # .bazelversion
@@ -56,6 +63,7 @@ ARG JOBS
 ARG JAVA_PATH
 ARG PROFILE
 RUN cat WORKSPACE-docker >> WORKSPACE && bazelisk build onos \
+    --action_env=https_proxy=$https_proxy \
     --jobs ${JOBS} \
     --verbose_failures \
     --java_runtime_version=dockerjdk_11 \
